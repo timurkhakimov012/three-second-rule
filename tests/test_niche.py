@@ -77,7 +77,15 @@ class NicheTest(TempDir):
     def test_too_few_creators(self) -> None:
         folder = self.tmp / "niche-small"
         niche.save_creator(folder, "tiktok", "a", {"handle": "a"}, make_posts("a", ["a-r0"], []))
+        niche.save_creator(folder, "tiktok", "b", {"handle": "b"}, make_posts("b", ["b-r0"], []))
         self.assertEqual(niche.rank(folder, read_at=READ_AT)["status"], "too_few_creators")
+
+    def test_one_account_is_its_own_scope(self) -> None:
+        folder = self.tmp / "niche-me"
+        niche.save_creator(folder, "tiktok", "me", {"handle": "me"}, make_posts("me", ["me-r0"], ["me-f0"]))
+        result = niche.rank(folder, read_at=READ_AT)
+        self.assertEqual(result["scope"], "account")
+        self.assertEqual(result["status"], "too_few_posts")
 
 
 if __name__ == "__main__":

@@ -82,9 +82,10 @@ def rank(folder: Path, window_days: int = WINDOW_DAYS, read_at: Optional[datetim
     scored = [r for r in rows if r["basis"] == "own usual" and not r["still_growing"]]
     with_usual = [c["key"] for c in scored_creators if c["has_own_usual"]]
     status = "ok"
+    single = len(creators) == 1
     if not scored:
         status = "empty"
-    elif len(with_usual) < MIN_CREATORS:
+    elif not single and len(with_usual) < MIN_CREATORS:
         status = "too_few_creators"
     elif len(scored) < MIN_SCORED:
         status = "too_few_posts"
@@ -92,7 +93,7 @@ def rank(folder: Path, window_days: int = WINDOW_DAYS, read_at: Optional[datetim
     weaker = sorted((r for r in rows if r["basis"].startswith("views per follower") and r["ratio"]),
                     key=lambda r: r["ratio"], reverse=True)
     result = {
-        "schema": "tsr/trends@1", "read_at": iso(read_at), "window": {"from": iso(window_start), "to": iso(read_at)},
+        "schema": "tsr/trends@1", "scope": "account" if single else "niche", "read_at": iso(read_at), "window": {"from": iso(window_start), "to": iso(read_at)},
         "status": status, "creators": len(creators), "creators_with_own_usual": with_usual,
         "scored_posts": len(scored), "trends": trends, "leads_weaker_basis": weaker[:10],
         "still_growing": [r for r in rows if r["still_growing"]], "posts": rows,
