@@ -7,7 +7,7 @@ the most welcome.
 
 - **Standard library only.** No `pip install` for the skill itself. External programs: ffmpeg (required), yt-dlp and
   Whisper (optional), always called with argument lists, never a shell string.
-- **Python 3.9+.** CI runs 3.9 and 3.12.
+- **Python 3.9+.** CI runs 3.9, 3.12 and 3.13.
 - **Every number from code, every threshold with a source.** A new check needs its threshold in `data/checks.json`
   with a `source` key, a test with a known answer, and an entry in `docs/checks.md`.
 - **Unknown is not zero.** New measurements return `None` with a reason when they cannot be made.
