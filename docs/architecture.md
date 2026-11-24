@@ -34,12 +34,15 @@ mode of the skill is about those seconds:
 │   speech.py              subtitles, Whisper output, speech metrics  │
 │   lang.py                word lists per language                    │
 │   checks.py              the preflight checklist                    │
+│   preflight.py           a preflight run: measure, notes, check     │
 │   hooks.py               the hook batch checker                     │
 │   fetch.py               yt-dlp reading and downloading             │
 │   baseline.py            a post against its own creator's usual     │
+│   teardown.py            a teardown run and its comparison set      │
 │   niche.py               many creators, formats, the format map     │
+│   nicherun.py            a niche run: creators, picks, watching     │
 │   recipe.py              a format's recipe and its tolerance        │
-│   report.py              markdown reports, run comparison           │
+│   report.py              markdown reports, run comparison, runs     │
 ├────────────────────────────────────────────────────────────────────┤
 │ data/                    thresholds, platforms, archetypes, words   │
 ├────────────────────────────────────────────────────────────────────┤
