@@ -115,7 +115,7 @@ def opening_frame(c: dict, x: dict) -> dict:
     if notes and (notes["frame0"] or {}).get("kind") == "blank":
         return result(FAIL, "blank first frame", "something on frame 0", "SEEN first-3s tile 1")
     if flat and not notes:
-        return result(WARN, "frame 0 is one flat colour", "something on frame 0", "MEASURED probe.json#motion.frame0")
+        return result(WARN, "frame 0 is nearly uniform: little to see at thumbnail size", "something on frame 0", "MEASURED probe.json#motion.frame0")
     if notes:
         what = (notes["frame0"] or {}).get("what") or (notes["frame0"] or {}).get("kind") or "seen"
         return result(PASS, what, "something on frame 0", "SEEN first-3s tile 1")

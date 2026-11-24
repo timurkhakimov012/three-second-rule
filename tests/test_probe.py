@@ -42,6 +42,11 @@ class ProbeTest(TempDir):
         self.assertEqual(measured["aspect"], "16:9")
         self.assertFalse(measured["vertical"])
 
+    def test_aspect_labels(self) -> None:
+        self.assertEqual(probe.aspect_label(1080, 1920), "9:16")
+        self.assertEqual(probe.aspect_label(704, 576), "11:9")
+        self.assertEqual(probe.aspect_label(1080, 1350), "4:5")
+
     def test_merge_close_cuts(self) -> None:
         self.assertEqual(probe.merge_close([1.0, 1.1, 1.5, 3.0]), [1.0, 1.5, 3.0])
 

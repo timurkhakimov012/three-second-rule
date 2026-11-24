@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from fractions import Fraction
 from pathlib import Path
@@ -70,7 +71,8 @@ def aspect_label(width: int, height: int) -> str:
     for label, value in known.items():
         if abs(ratio - value) / value < 0.02:
             return label
-    return f"{width}:{height}"
+    divisor = math.gcd(width, height) or 1
+    return f"{width // divisor}:{height // divisor}"
 
 
 def video_info(video: Path) -> dict:
