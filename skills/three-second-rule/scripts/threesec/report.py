@@ -86,7 +86,7 @@ def list_runs(limit: int = 20) -> list[dict]:
     rows = []
     for folder in runs_dir().iterdir():
         info = read_json_or(folder / "run.json", None)
-        if not info:
+        if not info or info.get("part_of"):
             continue
         outcome = read_json_or(folder / "checks.json", {})
         rows.append({"id": info["id"], "kind": info["kind"], "updated": info.get("updated_at") or info.get("created_at"),

@@ -80,6 +80,21 @@ class PreflightFlowTest(TempDir):
         self.assertEqual(code, 2)
 
 
+@needs_ffmpeg
+class TeardownLocalTest(TempDir):
+    def test_local_video_is_a_checkable_run(self) -> None:
+        video = make_video(self.tmp / "hit.mp4", [("pattern", 2.0), ("red", 2.0)], size=(360, 640))
+        code, text = call("teardown", "--csv", str(FIXTURES / "posts.csv"), "--video", str(video),
+                          "--no-download", "--json")
+        self.assertEqual(code, 0)
+        watched = json.loads(text)["run"]["watched"]["target"]
+        code, text = call("check", watched["folder"], "--json")
+        self.assertEqual(code, 0)
+        self.assertIn("checks", json.loads(text))
+        code, text = call("runs")
+        self.assertNotIn("videos", text)
+
+
 class CommandsTest(TempDir):
     def test_hooks_exit_code(self) -> None:
         batch = self.tmp / "hooks.json"

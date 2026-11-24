@@ -40,6 +40,12 @@ def load_csv(path: Path) -> list[dict]:
 def measure_video(folder: Path, file: Path, subtitles: Optional[str], language: Optional[str]) -> dict:
     measured = measure_into(file, folder, subtitles=Path(subtitles) if subtitles else None, language=language)
     notes_template(folder)
+    write_json(folder / "run.json", {
+        "schema": "tsr/run@1", "kind": "check", "id": str(folder), "version": VERSION, "created_at": iso(now()),
+        "video": {"path": str(file), "name": file.name, "hash": measured["probe"]["video"]["hash"]},
+        "options": {"platforms": [], "whisper": False, "language": language, "subtitles": subtitles, "recipe": False},
+        "part_of": folder.parent.parent.name,
+    })
     outcome = checks.evaluate(measured["probe"], measured["speech"], None, measured["sheets"])
     write_json(folder / "checks.json", outcome)
     probe, spoken = measured["probe"], measured["speech"]
