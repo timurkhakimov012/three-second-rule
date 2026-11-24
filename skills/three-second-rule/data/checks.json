@@ -1,0 +1,172 @@
+{
+  "about": "The preflight checklist. Every threshold is a heuristic with a named source, never a law. Change a value here and every run after uses it.",
+  "sources": {
+    "ootto": "Ootto-AI/claude-virality-skill: winners against flops of 262 posts of one Instagram account (2026). One account's observation, not a study.",
+    "vyral": "vyralcontent/content-skills, viral-hooks: the three-layer hook and its anti-patterns (general craft).",
+    "craft": "General short-form editing craft, repeated across creator guides; no single measured source.",
+    "platform": "The platforms' own loudness normalisation and interface (approximate, see platforms.json).",
+    "tsr": "A default of this skill, chosen to be strict enough to be useful; tune it for your niche."
+  },
+  "sections": {
+    "hook": "The first 3 seconds",
+    "body": "After the hook",
+    "tech": "Format and delivery",
+    "recipe": "Against the format's recipe"
+  },
+  "checks": [
+    {
+      "id": "H1", "key": "opening_frame", "section": "hook", "evidence": "MEASURED+SEEN",
+      "title": "Frame 0 shows something",
+      "why": "A black, empty or fading-in first frame is a frame of swipe: the feed shows it while the thumb decides.",
+      "fix": "Start on the most telling frame of the video: the result, the face mid-sentence, the object in motion. Cut the fade-in and any logo.",
+      "max_black_s": 0.1, "source": "ootto"
+    },
+    {
+      "id": "H2", "key": "early_motion", "section": "hook", "evidence": "MEASURED",
+      "title": "Something moves in the first 0.5 s",
+      "why": "A still card reads as a picture, not a video. Movement on frame 0 stops the eye before any word lands.",
+      "fix": "Open mid-action: a push-in, a hand entering, a counter running, text building word by word. A still frame needs at least a zoom.",
+      "min_change": 0.008, "frozen_fail_s": 0.5, "source": "ootto"
+    },
+    {
+      "id": "H3", "key": "first_word", "section": "hook", "evidence": "MEASURED",
+      "title": "The first word comes fast",
+      "why": "Silence at the start is dead time; the viewer has nothing to hold on to.",
+      "fix": "Trim the silence before the first word, and open on the subject of the sentence, not on 'so' or 'hey'.",
+      "pass_s": 0.5, "warn_s": 1.0, "source": "ootto"
+    },
+    {
+      "id": "H4", "key": "hook_text", "section": "hook", "evidence": "SEEN",
+      "title": "The hook is written on screen, early and short",
+      "why": "Most feeds start muted. Text on screen carries the promise to the viewer who cannot hear it.",
+      "fix": "Put 3 to 7 words of the promise on screen by 1.5 s, big, high contrast, inside the safe zone.",
+      "pass_s": 1.6, "warn_s": 2.5, "min_words": 3, "max_words": 7, "warn_words": 12, "source": "ootto+vyral"
+    },
+    {
+      "id": "H5", "key": "topic_clear", "section": "hook", "evidence": "SEEN",
+      "title": "By 3 s the viewer knows what this is",
+      "why": "A hook that has not said what the video is about by the third second is still a setup.",
+      "fix": "Say or show the subject and the stake inside the first 3 s. Move the setup after the promise.",
+      "source": "vyral"
+    },
+    {
+      "id": "H6", "key": "visual_change", "section": "hook", "evidence": "MEASURED+SEEN",
+      "title": "The picture changes inside the first 3 s",
+      "why": "One change in the hook window (a cut, a zoom, a text pop, a new object) resets attention before it settles.",
+      "fix": "Add one change between 1 and 2.5 s: a hard cut, a punch-in zoom or a second line of text.",
+      "window_s": 3.0, "min_motion": 0.02, "source": "vyral"
+    },
+    {
+      "id": "H7", "key": "works_muted", "section": "hook", "evidence": "SEEN",
+      "title": "It works with the sound off",
+      "why": "A viewer scrolling muted decides from the picture and the text alone.",
+      "fix": "Make the picture or the text state the promise on its own. Cover the sound and watch the first 3 s.",
+      "source": "vyral"
+    },
+    {
+      "id": "H8", "key": "layers_agree", "section": "hook", "evidence": "SEEN+MEASURED",
+      "title": "Picture, voice and text say the same thing",
+      "why": "Three layers pointing at one idea read as inevitable; layers pulling apart read as confused. Text that repeats the voice word for word wastes the second channel.",
+      "fix": "Make all three point at one promise, and compress the text: the voice says the sentence, the text says the stake ('$400 -> $39').",
+      "repeat_overlap": 0.8, "repeat_min_words": 4, "source": "vyral"
+    },
+    {
+      "id": "H9", "key": "opener", "section": "hook", "evidence": "MEASURED",
+      "title": "No dead opener",
+      "why": "Greetings, 'subscribe' before any value, filler and vague teases are the openings that lose viewers first.",
+      "fix": "Delete the greeting and the filler; replace a vague tease ('you won't believe') with the category of the answer ('one setting doubles battery life').",
+      "source": "vyral"
+    },
+    {
+      "id": "B1", "key": "dead_air", "section": "body", "evidence": "MEASURED",
+      "title": "No dead air",
+      "why": "A stretch with no sound at all feels like the video stopped.",
+      "fix": "Cut the silent stretch or lay room tone or music under it.",
+      "warn_s": 0.7, "fail_s": 1.2, "edge_s": 0.4, "source": "tsr"
+    },
+    {
+      "id": "B2", "key": "long_shot", "section": "body", "evidence": "MEASURED",
+      "title": "No shot drags on",
+      "why": "A long stretch without any change lets attention settle. Zooms and text pops count too, but the cut detector does not see them.",
+      "fix": "Break the long shot with a punch-in, a b-roll insert or a text pop every 3 to 5 s.",
+      "warn_s": 5.0, "source": "craft"
+    },
+    {
+      "id": "B3", "key": "payoff", "section": "body", "evidence": "INFERRED",
+      "title": "The hook's promise is paid off",
+      "why": "A hook that promises more than the video delivers gets the view and loses the trust; satisfaction signals fall.",
+      "fix": "Change the hook to what the video really delivers, or show the promised result.",
+      "source": "vyral"
+    },
+    {
+      "id": "B4", "key": "asks", "section": "body", "evidence": "MEASURED",
+      "title": "At most one kind of ask",
+      "why": "Follow, comment, save and the link all at once split the viewer's one action.",
+      "fix": "Keep the one ask that fits the goal: follow for followers, a comment word for reach, save for a resource, the link for a sale.",
+      "max_kinds": 1, "source": "craft"
+    },
+    {
+      "id": "B5", "key": "ending", "section": "body", "evidence": "SEEN",
+      "title": "The ending lands",
+      "why": "A video that trails off loses the rewatch and the last-second share.",
+      "fix": "End on the result, a turn or a line that loops back to the first frame. No 'that's it, bye'.",
+      "source": "craft"
+    },
+    {
+      "id": "T1", "key": "format", "section": "tech", "evidence": "MEASURED",
+      "title": "Vertical 9:16, sharp enough",
+      "why": "Short-form feeds are 9:16; anything else is letterboxed or cropped.",
+      "fix": "Export 1080 x 1920.",
+      "min_height": 1280, "source": "platform"
+    },
+    {
+      "id": "T2", "key": "safe_zone", "section": "tech", "evidence": "SEEN",
+      "title": "Text and faces sit inside the safe zone",
+      "why": "The app's buttons, caption and tabs cover the edges of the frame.",
+      "fix": "Move text and faces inside the green frame of safe-zones.jpg.",
+      "source": "platform"
+    },
+    {
+      "id": "T3", "key": "loudness", "section": "tech", "evidence": "MEASURED",
+      "title": "Loudness near the feed's level",
+      "why": "Platforms normalise to about -14 LUFS: a quiet video stays quiet, a hot one gets squashed.",
+      "fix": "Normalise the mix to about -14 LUFS integrated, peaks under -1 dBTP.",
+      "warn_lu": 4, "fail_lu": 7, "source": "platform"
+    },
+    {
+      "id": "T4", "key": "captions", "section": "tech", "evidence": "SEEN",
+      "title": "Speech is captioned",
+      "why": "Muted viewers read; captions also keep the eye on the frame.",
+      "fix": "Burn in captions, one short line at a time, inside the safe zone.",
+      "source": "vyral"
+    },
+    {
+      "id": "T5", "key": "length", "section": "tech", "evidence": "MEASURED",
+      "title": "Fits the platform's length limit",
+      "why": "A video over the limit is cut or refused.",
+      "fix": "Trim to the limit of the platform you post on.",
+      "source": "platform"
+    },
+    {
+      "id": "R1", "key": "recipe_length", "section": "recipe", "evidence": "MEASURED",
+      "title": "Length matches the recipe",
+      "why": "The format's timing is part of the format.",
+      "fix": "Trim or extend toward the recipe's length.",
+      "source": "tsr"
+    },
+    {
+      "id": "R2", "key": "recipe_pace", "section": "recipe", "evidence": "MEASURED",
+      "title": "Cut pace matches the recipe",
+      "why": "Pace is part of the format: too slow reads as a different video.",
+      "fix": "Add or remove cuts toward the recipe's cuts per 10 s.",
+      "source": "tsr"
+    },
+    {
+      "id": "R3", "key": "recipe_beats", "section": "recipe", "evidence": "MEASURED",
+      "title": "The recipe's hard cuts land on time",
+      "why": "The turn of a format sits on a hard cut at a known time.",
+      "fix": "Move the cuts to the recipe's beat times.",
+      "source": "tsr"
+    }
+  ]
+}
