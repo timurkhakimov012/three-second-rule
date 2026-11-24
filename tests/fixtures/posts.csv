@@ -1,0 +1,4 @@
+id,url,views,published_at,title
+target,https://example.com/t,90000,2026-11-01,the hit
+a,https://example.com/a,10000,2026-10-01,
+b,https://example.com/b,9000,2026-10-03,
