@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.mp4
+*.mov
+*.m4a
+*.wav
+!tests/fixtures/**/*.json
+first3/
+.tsr/
+tests/.tmp/
