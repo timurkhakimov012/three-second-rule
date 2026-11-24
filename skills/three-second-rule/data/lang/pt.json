@@ -1,0 +1,97 @@
+{
+  "code": "pt",
+  "name": "Português",
+  "hook_words_per_second": 3.6,
+  "stopwords": [
+    "o",
+    "a",
+    "de",
+    "que",
+    "e",
+    "do",
+    "da",
+    "em",
+    "um",
+    "uma",
+    "para",
+    "com",
+    "não",
+    "os",
+    "as",
+    "no",
+    "na",
+    "se",
+    "por",
+    "mais",
+    "você",
+    "isso",
+    "como",
+    "mas",
+    "meu",
+    "seu",
+    "foi",
+    "tem",
+    "tá"
+  ],
+  "welcome": [
+    "oi gente",
+    "olá pessoal",
+    "ola pessoal",
+    "e aí galera",
+    "fala galera",
+    "bem-vindos",
+    "bem vindos",
+    "neste vídeo",
+    "nesse vídeo",
+    "hoje eu vou",
+    "hoje vamos"
+  ],
+  "subscribe": [
+    "se inscreva",
+    "inscreva-se",
+    "deixa o like",
+    "ativa o sininho",
+    "me segue para mais"
+  ],
+  "filler_openers": [
+    "então",
+    "tipo assim",
+    "é isso",
+    "né"
+  ],
+  "vague_teases": [
+    "você não vai acreditar",
+    "isso mudou tudo",
+    "espera até o final",
+    "assista até o final",
+    "isso é loucura"
+  ],
+  "asks": {
+    "follow": [
+      "me segue",
+      "segue o perfil"
+    ],
+    "comment": [
+      "comenta",
+      "comente",
+      "me conta"
+    ],
+    "save": [
+      "salva esse",
+      "salve esse",
+      "salva o vídeo"
+    ],
+    "share": [
+      "compartilha",
+      "manda pra",
+      "marca um amigo"
+    ],
+    "link": [
+      "link na bio"
+    ],
+    "buy": [
+      "compre já",
+      "use o cupom"
+    ]
+  }
+}

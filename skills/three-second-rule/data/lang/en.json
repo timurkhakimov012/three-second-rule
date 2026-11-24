@@ -1,0 +1,108 @@
+{
+  "code": "en",
+  "name": "English",
+  "hook_words_per_second": 3.3,
+  "stopwords": [
+    "the",
+    "and",
+    "you",
+    "to",
+    "is",
+    "it",
+    "this",
+    "that",
+    "of",
+    "in",
+    "for",
+    "on",
+    "with",
+    "my",
+    "your",
+    "what",
+    "i",
+    "a",
+    "are",
+    "was",
+    "so",
+    "but",
+    "not",
+    "have",
+    "just",
+    "how",
+    "do",
+    "be",
+    "me",
+    "we"
+  ],
+  "welcome": [
+    "hey guys",
+    "hi guys",
+    "hello everyone",
+    "hey everyone",
+    "welcome back",
+    "welcome to my channel",
+    "what's up guys",
+    "in this video",
+    "today i'm going to",
+    "today we're going to",
+    "today i want to"
+  ],
+  "subscribe": [
+    "subscribe",
+    "smash that like",
+    "hit the bell",
+    "follow for more",
+    "like and subscribe"
+  ],
+  "filler_openers": [
+    "so basically",
+    "okay so",
+    "ok so",
+    "um",
+    "uh",
+    "alright so",
+    "basically"
+  ],
+  "vague_teases": [
+    "you won't believe",
+    "this changed everything",
+    "wait for it",
+    "what happened next",
+    "this is crazy",
+    "you need to see this",
+    "watch till the end",
+    "watch until the end"
+  ],
+  "asks": {
+    "follow": [
+      "follow me",
+      "follow for",
+      "hit follow"
+    ],
+    "comment": [
+      "comment",
+      "let me know",
+      "tell me in the comments"
+    ],
+    "save": [
+      "save this",
+      "save it for"
+    ],
+    "share": [
+      "share this",
+      "send this to",
+      "tag a friend",
+      "tag someone"
+    ],
+    "link": [
+      "link in bio",
+      "link in my bio",
+      "click the link"
+    ],
+    "buy": [
+      "order now",
+      "use code",
+      "buy now"
+    ]
+  }
+}

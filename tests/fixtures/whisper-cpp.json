@@ -1,0 +1,14 @@
+{
+  "result": {"language": "en"},
+  "transcription": [
+    {"offsets": {"from": 200, "to": 1600}, "text": " Stop editing captions.",
+     "tokens": [
+       {"text": "[_BEG_]", "offsets": {"from": 0, "to": 0}},
+       {"text": " Stop", "offsets": {"from": 200, "to": 500}},
+       {"text": " edit", "offsets": {"from": 520, "to": 700}},
+       {"text": "ing", "offsets": {"from": 700, "to": 900}},
+       {"text": " captions", "offsets": {"from": 900, "to": 1450}},
+       {"text": ".", "offsets": {"from": 1450, "to": 1600}}
+     ]}
+  ]
+}

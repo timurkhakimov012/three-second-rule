@@ -1,0 +1,100 @@
+{
+  "code": "es",
+  "name": "Español",
+  "hook_words_per_second": 3.8,
+  "stopwords": [
+    "el",
+    "la",
+    "de",
+    "que",
+    "y",
+    "en",
+    "los",
+    "las",
+    "un",
+    "una",
+    "es",
+    "por",
+    "con",
+    "para",
+    "no",
+    "se",
+    "lo",
+    "tu",
+    "mi",
+    "como",
+    "más",
+    "pero",
+    "esto",
+    "eso",
+    "qué",
+    "muy",
+    "ya",
+    "te",
+    "me",
+    "del"
+  ],
+  "welcome": [
+    "hola a todos",
+    "hola chicos",
+    "bienvenidos",
+    "bienvenidos a mi canal",
+    "qué tal chicos",
+    "en este video",
+    "hoy les voy a",
+    "hoy vamos a",
+    "hoy te voy a"
+  ],
+  "subscribe": [
+    "suscríbete",
+    "suscribete",
+    "dale like",
+    "activa la campanita",
+    "sígueme para más",
+    "sigueme para mas"
+  ],
+  "filler_openers": [
+    "bueno",
+    "o sea",
+    "pues nada",
+    "eh"
+  ],
+  "vague_teases": [
+    "no vas a creer",
+    "no creerás",
+    "esto lo cambió todo",
+    "espera al final",
+    "mira hasta el final",
+    "esto es una locura"
+  ],
+  "asks": {
+    "follow": [
+      "sígueme",
+      "sigueme",
+      "seguime"
+    ],
+    "comment": [
+      "comenta",
+      "déjame en los comentarios",
+      "dejame en los comentarios"
+    ],
+    "save": [
+      "guarda este",
+      "guárdalo",
+      "guardalo"
+    ],
+    "share": [
+      "comparte",
+      "envíaselo",
+      "etiqueta a"
+    ],
+    "link": [
+      "link en mi bio",
+      "enlace en la bio"
+    ],
+    "buy": [
+      "compra ya",
+      "usa el código"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "text": " Stop editing captions by hand.",
+  "language": "en",
+  "segments": [
+    {"start": 0.24, "end": 2.1, "text": " Stop editing captions by hand.",
+     "words": [
+       {"word": " Stop", "start": 0.24, "end": 0.5, "probability": 0.98},
+       {"word": " editing", "start": 0.5, "end": 0.9, "probability": 0.95},
+       {"word": " captions", "start": 0.9, "end": 1.4, "probability": 0.91},
+       {"word": " by", "start": 1.4, "end": 1.6, "probability": 0.97},
+       {"word": " hand.", "start": 1.6, "end": 2.1, "probability": 0.93},
+       {"word": " ♪", "start": 2.1, "end": 3.0, "probability": 0.05}
+     ]}
+  ]
+}
