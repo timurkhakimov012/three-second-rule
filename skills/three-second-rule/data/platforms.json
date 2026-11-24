@@ -1,0 +1,25 @@
+{
+  "about": "Areas of a 1080x1920 frame that the app's own interface covers, as fractions of the frame. Approximate: taken from commonly published safe-zone templates, and every app changes its interface. Treat a hit as a warning to check in the app, never as a certainty.",
+  "loudness_target_lufs": -14,
+  "loudness_tolerance_lu": 4,
+  "platforms": {
+    "tiktok": {
+      "name": "TikTok",
+      "safe_zone": {"top": 0.07, "bottom": 0.22, "left": 0.04, "right": 0.13},
+      "covered_by": {"top": "the Following / For You tabs", "bottom": "the caption, the sound and the progress bar", "right": "the profile, like, comment, save and share buttons"},
+      "max_seconds": 600
+    },
+    "reels": {
+      "name": "Instagram Reels",
+      "safe_zone": {"top": 0.12, "bottom": 0.22, "left": 0.04, "right": 0.12},
+      "covered_by": {"top": "the Reels title and the camera button", "bottom": "the account name, the caption and the audio", "right": "the like, comment, share and more buttons"},
+      "max_seconds": 180
+    },
+    "shorts": {
+      "name": "YouTube Shorts",
+      "safe_zone": {"top": 0.08, "bottom": 0.20, "left": 0.04, "right": 0.13},
+      "covered_by": {"top": "the search and more buttons", "bottom": "the title, the channel and the subscribe button", "right": "the like, dislike, comment, share and remix buttons"},
+      "max_seconds": 180
+    }
+  }
+}
