@@ -1,0 +1,14 @@
+{
+  "name": "three-second-rule",
+  "owner": { "name": "Timur Khakimov", "url": "https://github.com/timurkhakimov012" },
+  "metadata": { "description": "Measure and fix the first 3 seconds of short-form video." },
+  "plugins": [
+    {
+      "name": "three-second-rule",
+      "source": "./",
+      "description": "Check your video's first 3 seconds before posting, tear down viral posts against their creator's usual, write hooks in three layers, map a niche's formats.",
+      "version": "0.1.0",
+      "category": "productivity"
+    }
+  ]
+}
