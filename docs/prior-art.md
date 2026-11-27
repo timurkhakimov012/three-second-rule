@@ -14,6 +14,11 @@ what each does well, what we took as an idea (never as code or text), and the ga
 | [andrew4522-cr/instagram-tiktok-agent-skill](https://github.com/andrew4522-cr/instagram-tiktok-agent-skill) | 11 skills from hook formulas to a retention doctor | cover-to-hook alignment; breadth | formula-based, little measurement |
 | [solutionsystempro/tiktok-agent-skill](https://github.com/solutionsystempro/tiktok-agent-skill) | 12 TikTok skills with stdlib tools | per-layer hook scoring, beat sheets | text-only hook scoring |
 | [riccivr/retention-analyzer](https://github.com/riccivr/retention-analyzer) | retention drops against edit events | correlating the retention graph with cuts | needs retention exports and a local LLM stack |
+| [itzjk/hookcheck](https://github.com/itzjk/hookcheck) | Python CLI: swipe risk of the first 1.5 s from frame change, brightness, cuts, sound onset | suggests a better start time from the most active half-second | a single verdict; no speech, no text, no safe zones |
+| [opus-pro/reel-runbook](https://github.com/opus-pro/reel-runbook) | Claude skills: a frame-by-frame analyzer (stdlib + ffmpeg) and hook-first scripts | dense picture and sound checks; frame 0 shown at feed size, blurred and with safe zones | rubric scores; English-only text checks |
+| [AlphaaCode/reels-analyzer](https://github.com/AlphaaCode/reels-analyzer) | local app: ffmpeg signals plus a model of your choice | backtests its own score against the user's real reach before trusting it | a 0-100 virality score; needs an AI provider for most of the reading |
+| [christianjohnston-ai/claude-retention-teardown](https://github.com/christianjohnston-ai/claude-retention-teardown) | per-second retention curves lined up with words and frames | lessons that must hold on 3+ videos older than 48 h | reads analytics through a signed-in browser |
+| [CokeRoach/shorts-safezone](https://github.com/CokeRoach/shorts-safezone), [ahzab/safezone](https://github.com/ahzab/safezone), [viewgum/short-form-video-specs](https://github.com/viewgum/short-form-video-specs) | safe-zone data and checkers | numbers with sources: official ad templates, and an in-app measurement of ordinary posts | zones only |
 | [kleZ799/clipmint](https://github.com/kleZ799/clipmint), [mutonby/openshorts](https://github.com/mutonby/openshorts) | long video → short clips | moment detection from audio and transcripts | a clipper, not a checker |
 
 ## What this skill adds
@@ -28,9 +33,14 @@ what each does well, what we took as an idea (never as code or text), and the ga
 5. **A loop.** Teardown → recipe → your remake checked against the recipe → compare before and after.
 6. **Sports** as a first-class niche: archetypes and checks for match clips.
 
+Ideas taken in 0.2.0: a measured start time (hookcheck), frame 0 at small size and blurred (reel-runbook), and
+safe zones split into what an ordinary post covers and what the ad templates cover, every number with its source
+(ahzab/safezone, CokeRoach/shorts-safezone, viewgum/short-form-video-specs). Not taken: virality scores, AI
+providers, signed-in analytics.
+
 ## Credits
 
 The method of measuring a post against its own creator's usual, the evidence labels and the niche-format rules follow
 REA Viral (Apache-2.0). The three-layer hook, Kallaway's archetypes and the anti-pattern names follow the collection in
 vyralcontent/content-skills (MIT) and the creators it cites. The hook timing thresholds H2–H4 are Ootto-AI's published
-observation (MIT). Thank you to all of them. All text and code here is original.
+observation (MIT). Safe-zone numbers cite their sources in `data/platforms.json`. Thank you to all of them. All text and code here is original.

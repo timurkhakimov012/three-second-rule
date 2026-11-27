@@ -3,7 +3,7 @@ name: three-second-rule
 description: "Measure and fix the first 3 seconds of short-form video (TikTok, Instagram Reels, YouTube Shorts) — the seconds that decide whether a viewer stays. Four modes: PREFLIGHT a user's own video file before posting (frame 0, motion, first word, hook text, cuts, dead air, safe zones, loudness: a measured checklist with fixes); TEARDOWN a viral post by link against its own creator's usual (hits, ordinary posts and flops side by side, a timed recipe); HOOK LAB (6-10 hooks in three layers: first frame, spoken line, on-screen text, checked against dead openers); NICHE MAP (which openings and formats work now across creators, which fade). Scripts do every number with ffmpeg; the agent looks at contact sheets. Free and local, no keys. Use when the user asks to check, review or score a video or reel before posting, why a video flopped or blew up, for hooks or a first line, to fix an intro, what works in a niche, to break down a competitor's video, or mentions the first 3 seconds, retention, swipe-away or hook rate."
 license: MIT
 metadata:
-  version: 0.1.0
+  version: 0.2.0
   repository: https://github.com/timurkhakimov012/three-second-rule
 ---
 
@@ -68,8 +68,8 @@ else's, write hooks, or map a niche?" A file plus "why did this go viral" is a t
 
 ## Context budget
 
-Each sheet is one image: `first-3s.jpg` (12 frames, one per 0.25 s), `shots.jpg` (a frame after each cut, plus the
-end), `safe-zones.jpg` (4 frames with the app's interface shaded). Open each once, write your notes, and work from the
+Each sheet is one image: `first-3s.jpg` (12 frames, one per 0.25 s, plus frame 0 at grid size and blurred), `shots.jpg` (a frame after each cut, plus the
+end), `safe-zones.jpg` (4 frames: red covered, amber covered in ads). Open each once, write your notes, and work from the
 notes after that. Never extract single frames one by one; never open the video. A teardown or a niche run adds one
 `first-3s.jpg` per watched video: open them side by side, at most 6 per turn.
 

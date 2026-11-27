@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import subprocess
+
 import unittest
 
 from helpers import TempDir, make_video, needs_ffmpeg
@@ -41,6 +43,34 @@ class ProbeTest(TempDir):
         self.assertIsNone(measured["audio"])
         self.assertEqual(measured["aspect"], "16:9")
         self.assertFalse(measured["vertical"])
+
+    def test_split_screen_cut_in_one_half(self) -> None:
+        video = self.tmp / "split.mp4"
+        subprocess.run([
+            "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+            "-f", "lavfi", "-i", "testsrc2=s=180x160:r=25:d=6",
+            "-f", "lavfi", "-i", "color=c=red:s=180x160:r=25:d=3",
+            "-f", "lavfi", "-i", "color=c=blue:s=180x160:r=25:d=3",
+            "-filter_complex", "[1:v][2:v]concat=n=2:v=1[b];[0:v][b]vstack,format=yuv420p",
+            "-c:v", "libx264", "-preset", "ultrafast", str(video),
+        ], check=True)
+        measured = probe.measure(video)
+        self.assertEqual(measured["cuts"], [])
+        self.assertEqual(len(measured["region_cuts"]), 1)
+        self.assertAlmostEqual(measured["region_cuts"][0], 3.0, delta=0.1)
+        self.assertAlmostEqual(measured["longest_unchanged"]["length"], 3.0, delta=0.1)
+
+    def test_most_active_window_skips_the_opening_and_cuts(self) -> None:
+        changes = [{"t": round(n * 0.25, 2), "change": 0.01} for n in range(1, 24)]
+        for point in changes:
+            if point["t"] in (3.25, 3.5):
+                point["change"] = 0.08
+            if point["t"] == 4.5:
+                point["change"] = 0.9
+        best = probe.most_active(changes, [4.4], 0.25)
+        self.assertEqual(best["start"], 3.0)
+        self.assertEqual(best["end"], 3.5)
+        self.assertEqual(probe.most_active(changes[:2], [], 0.25), None)
 
     def test_aspect_labels(self) -> None:
         self.assertEqual(probe.aspect_label(1080, 1920), "9:16")

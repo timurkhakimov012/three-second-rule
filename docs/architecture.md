@@ -74,9 +74,9 @@ $TSR_HOME (default ~/.cache/three-second-rule)
     │   ├── probe.json                  MEASURED: video and audio
     │   ├── speech.json                 MEASURED: words and timings (or why not)
     │   ├── sheets.json                 which tile is which time
-    │   ├── first-3s.jpg                12 frames, one every 0.25 s
+    │   ├── first-3s.jpg                12 frames, one every 0.25 s, + frame 0 small and blurred
     │   ├── shots.jpg                   a frame after each cut, plus the last frame
-    │   ├── safe-zones.jpg              4 frames with the platform UI zones shaded
+    │   ├── safe-zones.jpg              4 frames, UI zones shaded (red: covered, amber: ads)
     │   ├── notes.template.json         what the agent must look for
     │   ├── notes.json                  SEEN: what the agent saw (written by the agent)
     │   └── checks.json                 the checklist result

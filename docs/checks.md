@@ -23,7 +23,7 @@ uncovered language — with the reason), **n/a** (does not apply: no audio, nobo
 
 **Why.** A black, empty or fading-in first frame is a frame of swipe: the feed shows it while the thumb decides.
 
-**How it is measured** (MEASURED+SEEN). ffmpeg `blackdetect` on the first frames (black longer than `max_black_s`), the brightness spread of frame 0 (a single flat colour), and your `frame0.kind` (blank).
+**How it is measured** (MEASURED+SEEN). ffmpeg `blackdetect` on the first frames (black longer than `max_black_s`), the brightness spread of frame 0 (a single flat colour), your `frame0.kind` (blank), and your `frame0_small_ok`: frame 0 is drawn again at profile-grid size (cropped to 3:4) and blurred, and a frame whose subject is lost there warns.
 
 **Thresholds:** `max_black_s` = 0.1 · source: `ootto`
 
@@ -33,9 +33,9 @@ uncovered language — with the reason), **n/a** (does not apply: no audio, nobo
 
 **Why.** A still card reads as a picture, not a video. Movement on frame 0 stops the eye before any word lands.
 
-**How it is measured** (MEASURED). The mean difference between frames at 0, 0.25 and 0.5 s (64 px wide, grey), ffmpeg `freezedetect` from the start, and the first cut. Passes with a change of at least `min_change` or a cut by 0.5 s; fails when the opening is frozen for `frozen_fail_s` or barely changes.
+**How it is measured** (MEASURED). The mean difference between frames at 0, 0.25 and 0.5 s (64 px wide, grey), ffmpeg `freezedetect` from the start, and the first cut. Passes with a change of at least `min_change` or a cut by 0.5 s; fails when the opening is frozen for `frozen_fail_s` or barely changes. On a fail or a warning, the same frame difference is measured over the whole video (4 frames a second, the first 180 s, changes across a cut left out) and the most active half-second after 0.5 s is named in the fix when it moves at least `best_start_ratio` times more than the opening: a measured place to start the video from.
 
-**Thresholds:** `min_change` = 0.008, `frozen_fail_s` = 0.5 · source: `ootto`
+**Thresholds:** `min_change` = 0.008, `frozen_fail_s` = 0.5 · source: `ootto`; `best_start_ratio` = 2.0 is this skill's default
 
 **Fix.** Open mid-action: a push-in, a hand entering, a counter running, text building word by word. A still frame needs at least a zoom.
 
@@ -125,7 +125,7 @@ uncovered language — with the reason), **n/a** (does not apply: no audio, nobo
 
 **Why.** A long stretch without any change lets attention settle. Zooms and text pops count too, but the cut detector does not see them.
 
-**How it is measured** (MEASURED). The longest shot between measured cuts. Warn only: zooms, pans and text pops are changes too, and the cut detector does not see them.
+**How it is measured** (MEASURED). The longest shot between measured cuts. Cuts are also detected inside each half of the frame (top, bottom, left, right), so a split screen where one half cuts is not one long shot (`probe.json#region_cuts`, `#longest_unchanged`). Warn only: zooms, pans and text pops are changes too, and the cut detector does not see them.
 
 **Thresholds:** `warn_s` = 5.0 · source: `craft`
 
@@ -177,7 +177,7 @@ uncovered language — with the reason), **n/a** (does not apply: no audio, nobo
 
 **Why.** The app's buttons, caption and tabs cover the edges of the frame.
 
-**How it is measured** (SEEN). Your `safe_zone_ok`, from `safe-zones.jpg`, where the union of the chosen platforms' interface areas is shaded (approximate, from `data/platforms.json`).
+**How it is measured** (SEEN). Your `safe_zone_ok`, from `safe-zones.jpg`. Red: the union of the chosen platforms' areas covered on an ordinary post, the button column included. Amber: the stricter ad templates, which also cover long captions. Text or a face on red fails; amber is mentioned, not failed. Every number names its source in `data/platforms.json`.
 
 **Source:** `platform`
 
@@ -207,7 +207,7 @@ uncovered language — with the reason), **n/a** (does not apply: no audio, nobo
 
 **Why.** A video over the limit is cut or refused.
 
-**How it is measured** (MEASURED). Duration against `max_seconds` in `data/platforms.json`; fails only for a platform you named.
+**How it is measured** (MEASURED). Duration against `max_seconds` in `data/platforms.json` (TikTok 60 min, Reels 20 min, Shorts 3 min, each with its source); fails only for a platform you named.
 
 **Source:** `platform`
 

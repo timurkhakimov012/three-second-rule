@@ -34,7 +34,7 @@ The cache is `~/.cache/three-second-rule` (or `$TSR_HOME`). Runs older than 30 d
 | File | Written by | Holds |
 |---|---|---|
 | `run.json` | tsr | what was run, on what, with which options |
-| `probe.json` | tsr | MEASURED: size, aspect, fps, duration, cuts, shots, black, freezes, motion, silences, loudness |
+| `probe.json` | tsr | MEASURED: size, aspect, fps, duration, cuts (and cuts inside one half of the frame), shots, black, freezes, motion (and its most active half-second), silences, loudness |
 | `speech.json` | tsr | MEASURED: words with times, first word, words per minute, gaps, first 3 s text, language, source |
 | `sheets.json` | tsr | which tile of which sheet is which time |
 | `first-3s.jpg`, `shots.jpg`, `safe-zones.jpg` | tsr | the sheets you look at |

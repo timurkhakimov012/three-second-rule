@@ -7,7 +7,7 @@
       "name": "three-second-rule",
       "source": "./",
       "description": "Check your video's first 3 seconds before posting, tear down viral posts against their creator's usual, write hooks in three layers, map a niche's formats.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "productivity"
     }
   ]

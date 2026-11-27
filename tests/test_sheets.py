@@ -20,9 +20,17 @@ class ImageTest(unittest.TestCase):
         self.assertEqual(canvas.pixels[0], 0)
 
     def test_union_zone_takes_the_largest_side(self) -> None:
-        zone = sheets.union_zone(sheets.platforms(["tiktok", "reels"]))
-        self.assertEqual(zone["top"], 0.12)
-        self.assertEqual(zone["right"], 0.13)
+        selected = sheets.platforms(["tiktok", "reels"])
+        zone = sheets.union_zone(selected)
+        self.assertEqual(zone["top"], 0.10)
+        self.assertEqual(zone["bottom"], 0.13)
+        self.assertEqual(sheets.union_zone(selected, "ads_zone")["bottom"], 0.35)
+        self.assertEqual(sheets.union_buttons(selected), {"width": 0.11, "from_top": 0.46})
+
+    def test_every_platform_names_its_sources(self) -> None:
+        for key, platform in sheets.platforms().items():
+            for field in ("safe_zone", "ads_zone", "max_seconds"):
+                self.assertTrue(platform["sources"].get(field), f"{key}.{field}")
 
 
 @needs_ffmpeg
@@ -33,6 +41,8 @@ class SheetsTest(TempDir):
         drawn = sheets.draw_all(video, measured, self.tmp / "out", ["tiktok"])
         self.assertEqual(len(drawn["first_3s"]["tiles"]), 12)
         self.assertEqual(drawn["first_3s"]["tiles"][4]["t"], 1.0)
+        self.assertEqual([e["label"] for e in drawn["first_3s"]["extras"]], ["grid", "blur"])
+        self.assertEqual(drawn["safe_zones"]["buttons"], {"width": 0.11, "from_top": 0.46})
         kinds = [t["kind"] for t in drawn["shots"]["tiles"]]
         self.assertEqual(kinds[0], "start")
         self.assertEqual(kinds[-1], "end")

@@ -9,6 +9,7 @@
 | The first word is ~0.3 s off | subtitle cues start a little before the word | expected: cue timings are marked "cue"; Whisper or YouTube auto-captions give word timings |
 | Safe zones "skipped" | the video is not 9:16 | export 1080×1920; T1 fails meanwhile |
 | A cut is missing | a soft cross-fade or a zoom is not a scene cut | the agent notes zooms and pops from the frames (H6); B2 is a warning for this reason |
+| B2 warns on a split screen | before 0.2.0 only whole-frame cuts counted | cuts inside one half of the frame now count (`probe.json#region_cuts`); a split screen where neither half cuts still warns |
 | Too many cuts on a flashing video | strobes and fast motion pass the 0.30 scene threshold | expected on such footage; the shots sheet shows them |
 | A teardown says "not read: HTTP Error 403" | the site refused the download | try again later; the rest of the run goes on, and that post is never described |
 | Instagram teardown finds no posts | Instagram lists posts only to signed-in users; the skill never signs in | give the creator's numbers as CSV (`id,url,views,published_at,title`) |

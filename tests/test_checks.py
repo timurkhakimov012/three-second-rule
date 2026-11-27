@@ -108,7 +108,7 @@ class ChecklistTest(unittest.TestCase):
     def test_length_limit_by_platform(self) -> None:
         long_video = changed(PROBE, duration=200.0)
         self.assertEqual(statuses(probe=long_video, chosen_platforms=["tiktok"])["T5"], "pass")
-        self.assertEqual(statuses(probe=long_video, chosen_platforms=["reels"])["T5"], "fail")
+        self.assertEqual(statuses(probe=long_video, chosen_platforms=["shorts"])["T5"], "fail")
         self.assertEqual(statuses(probe=long_video)["T5"], "warn")
 
     def test_without_notes_seen_checks_wait(self) -> None:
@@ -138,6 +138,46 @@ class ChecklistTest(unittest.TestCase):
         outcome = checks.evaluate(changed(PROBE, black_at_start=0.5), SPEECH, NOTES)
         self.assertIn("1 failed", outcome["summary"]["line"])
         self.assertIn("Fix first", checks.text_table(outcome))
+
+
+class ReviewFixesTest(unittest.TestCase):
+    def row(self, check_id: str, **kwargs) -> dict:
+        outcome = checks.evaluate(kwargs.pop("probe", PROBE), kwargs.pop("speech", SPEECH), kwargs.pop("notes", NOTES), **kwargs)
+        return next(r for r in outcome["checks"] if r["id"] == check_id)
+
+    def test_a_null_field_in_notes_is_not_called_missing_notes(self) -> None:
+        row = self.row("B5", notes=changed(NOTES, ending_lands=None))
+        self.assertEqual(row["status"], "not_measured")
+        self.assertIn("ending_lands null", row["detail"])
+
+    def test_english_hook_text_is_checked_without_a_transcript(self) -> None:
+        notes = changed(NOTES, hook_text="Hey guys, welcome back")
+        row = self.row("H9", speech={"words": 0, "not_measured": "no subtitles"}, notes=notes)
+        self.assertEqual(row["status"], "fail")
+        clean = self.row("H9", speech={"words": 0}, notes=changed(NOTES, hook_text="This setting fixes shaky video"))
+        self.assertEqual(clean["status"], "pass")
+
+    def test_split_screen_cut_shortens_the_longest_shot(self) -> None:
+        probe = changed(PROBE, longest_shot={"n": 1, "start": 0.0, "end": 9.0, "length": 9.0},
+                        longest_unchanged={"start": 4.0, "end": 8.0, "length": 4.0})
+        row = self.row("B2", probe=probe)
+        self.assertEqual(row["status"], "pass")
+        self.assertIn("one half of the frame", row["value"])
+        self.assertEqual(self.row("B2", probe=changed(probe, longest_unchanged=None))["status"], "warn")
+
+    def test_frame0_lost_at_grid_size_warns(self) -> None:
+        self.assertEqual(self.row("H1", notes=changed(NOTES, frame0_small_ok=False))["status"], "warn")
+        self.assertEqual(self.row("H1", notes=changed(NOTES, frame0_small_ok=True))["status"], "pass")
+
+    def test_still_opening_names_the_most_active_moment(self) -> None:
+        motion = {"first_half_second": 0.0, "first_three_seconds": 0.0, "frame0": {"flat": False},
+                  "most_active": {"start": 2.75, "end": 3.25, "change": 0.09}}
+        probe = changed(PROBE, first_cut=2.0, frozen_at_start=1.2, motion=motion)
+        row = self.row("H2", probe=probe)
+        self.assertEqual(row["status"], "fail")
+        self.assertIn("2.75-3.25 s", row["fix"])
+        weak = changed(probe, motion=dict(motion, most_active={"start": 2.75, "end": 3.25, "change": 0.004}))
+        self.assertNotIn("Measured:", self.row("H2", probe=weak)["fix"])
 
 
 if __name__ == "__main__":

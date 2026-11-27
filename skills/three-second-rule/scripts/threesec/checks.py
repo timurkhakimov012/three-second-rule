@@ -15,6 +15,7 @@ FRAME_KINDS = ("face", "person", "text", "product", "action", "scene", "graphic"
 NOTES_TEMPLATE = {
     "looked": False,
     "frame0": {"kind": None, "what": None},
+    "frame0_small_ok": None,
     "hook_text": None,
     "hook_text_tile": None,
     "topic_clear_tile": None,
@@ -36,13 +37,14 @@ NOTES_TEMPLATE = {
 NOTES_HELP = {
     "looked": "true only after you opened first-3s.jpg, shots.jpg and safe-zones.jpg",
     "frame0": "first-3s tile 1. kind: one of " + ", ".join(FRAME_KINDS) + "; what: one plain sentence",
+    "frame0_small_ok": "first-3s bottom row: false if the subject or the text of frame 0 is lost at profile-grid size or blurred",
     "hook_text": "the words on screen in the first 3 s, verbatim (not the subtitles of the speech); null if none",
     "hook_text_tile": "first-3s tile number (1-12) where the hook text is first readable; null if none",
     "topic_clear_tile": "first-3s tile by which a stranger knows what the video is about; null if not by tile 12",
     "visual_change_tile": "first-3s tile of a zoom, text pop or new object (cuts are measured already); null if none",
     "muted_ok": "true if the picture and the text alone state the promise with the sound off",
     "layers_agree": "true if picture, voice and on-screen text point at the same promise",
-    "safe_zone_ok": "false if text or a face touches a red area of safe-zones.jpg",
+    "safe_zone_ok": "false if text or a face touches a red area of safe-zones.jpg; amber only: true, and say it in safe_zone_issue",
     "speaking": "true if someone speaks in the video",
     "captions": "true if the speech is captioned on screen; null if nobody speaks",
     "payoff_delivered": "true if the video delivers what the hook promised (shots.jpg); null if you cannot tell",
@@ -80,7 +82,7 @@ def validate_notes(notes: Optional[dict]) -> tuple[Optional[dict], list[str]]:
             clean[key] = None
         else:
             clean[key] = value
-    for key in ("muted_ok", "layers_agree", "safe_zone_ok", "speaking", "captions", "payoff_delivered", "ending_lands"):
+    for key in ("frame0_small_ok", "muted_ok", "layers_agree", "safe_zone_ok", "speaking", "captions", "payoff_delivered", "ending_lands"):
         value = notes.get(key)
         if value is not None and not isinstance(value, bool):
             problems.append(f"{key} must be true, false or null")
@@ -102,7 +104,9 @@ def result(status: str, value: Any = None, expected: Any = None, detail: str = "
     return {"status": status, "value": value, "expected": expected, "detail": detail}
 
 
-def unseen() -> dict:
+def unseen(notes: Optional[dict] = None, key: str = "") -> dict:
+    if notes and key:
+        return result(NOT_MEASURED, detail=f"notes.json leaves {key} null: it could not be told from the sheets")
     return result(NOT_MEASURED, detail="needs notes.json from looking at the sheets")
 
 
@@ -118,8 +122,20 @@ def opening_frame(c: dict, x: dict) -> dict:
         return result(WARN, "frame 0 is nearly uniform: little to see at thumbnail size", "something on frame 0", "MEASURED probe.json#motion.frame0")
     if notes:
         what = (notes["frame0"] or {}).get("what") or (notes["frame0"] or {}).get("kind") or "seen"
+        if notes.get("frame0_small_ok") is False:
+            return result(WARN, f"{what}; lost at grid size", "reads at thumbnail size", "SEEN first-3s grid and blur tiles")
         return result(PASS, what, "something on frame 0", "SEEN first-3s tile 1")
     return result(PASS, "not black, not flat", "something on frame 0", "MEASURED only; look at tile 1 to confirm")
+
+
+def with_better_start(outcome: dict, c: dict, probe: dict, change: float) -> dict:
+    best = (probe.get("motion") or {}).get("most_active")
+    if not best or best["change"] < max(c["min_change"], change * c["best_start_ratio"]):
+        return outcome
+    outcome["hint"] = (f"the most active half-second is {best['start']:.2f}-{best['end']:.2f} s "
+                       f"(change {best['change']:.3f}): open there, or move that moment to the start")
+    outcome["detail"] += "; MEASURED probe.json#motion.most_active"
+    return outcome
 
 
 def early_motion(c: dict, x: dict) -> dict:
@@ -134,9 +150,10 @@ def early_motion(c: dict, x: dict) -> dict:
     if change >= c["min_change"]:
         return result(PASS, f"frame change {change:.3f}", f">= {c['min_change']}", "MEASURED probe.json#motion")
     if frozen >= c["frozen_fail_s"] or change < c["min_change"] / 4:
-        return result(FAIL, f"still for {max(frozen, 0.5):.2f} s (change {change:.3f})", "movement by 0.5 s",
-                      "MEASURED probe.json#frozen_at_start, #motion")
-    return result(WARN, f"barely moves (change {change:.3f})", f">= {c['min_change']}", "MEASURED probe.json#motion")
+        return with_better_start(result(FAIL, f"still for {max(frozen, 0.5):.2f} s (change {change:.3f})",
+                                        "movement by 0.5 s", "MEASURED probe.json#frozen_at_start, #motion"), c, probe, change)
+    return with_better_start(result(WARN, f"barely moves (change {change:.3f})", f">= {c['min_change']}",
+                                    "MEASURED probe.json#motion"), c, probe, change)
 
 
 def first_word(c: dict, x: dict) -> dict:
@@ -213,7 +230,7 @@ def visual_change(c: dict, x: dict) -> dict:
 def works_muted(c: dict, x: dict) -> dict:
     notes = x["notes"]
     if not notes or notes.get("muted_ok") is None:
-        return unseen()
+        return unseen(notes, "muted_ok")
     why = notes.get("muted_why") or ""
     return result(PASS if notes["muted_ok"] else FAIL, why or ("yes" if notes["muted_ok"] else "no"), "understood muted",
                   "SEEN first-3s tiles 1-12")
@@ -238,7 +255,7 @@ def repeat_share(text: str, spoken: str) -> float:
 def layers_agree(c: dict, x: dict) -> dict:
     notes, speech = x["notes"], x["speech"] or {}
     if not notes or notes.get("layers_agree") is None:
-        return unseen()
+        return unseen(notes, "layers_agree")
     why = notes.get("layers_why") or ""
     if not notes["layers_agree"]:
         return result(FAIL, why or "the layers pull apart", "one promise in all three", "SEEN")
@@ -255,12 +272,13 @@ def opener(c: dict, x: dict) -> dict:
     speech, notes = x["speech"] or {}, x["notes"] or {}
     spoken = speech.get("first_3s_text") or ""
     shown = notes.get("hook_text") or ""
-    language = lang.get(speech.get("language") or x.get("language")) or (lang.get(lang.guess(shown)) if shown else None)
     if not spoken and not shown:
         return result(NOT_MEASURED, detail="no words in the first 3 s were read (no transcript, no hook text)")
+    both = f"{spoken} | {shown}"
+    language = lang.get(speech.get("language") or x.get("language")) or lang.get(lang.guess(both, short=True)) \
+        or lang.matching(both)
     if language is None:
         return result(NOT_MEASURED, detail=f"language not covered (covered: {', '.join(lang.languages())})")
-    both = f"{spoken} | {shown}"
     bad = lang.found(both, language["welcome"]) + lang.found(both, language["subscribe"])
     if bad:
         return result(FAIL, "opens with: " + ", ".join(f"'{b}'" for b in bad), "no greeting, no early ask",
@@ -294,18 +312,25 @@ def dead_air(c: dict, x: dict) -> dict:
 
 
 def long_shot(c: dict, x: dict) -> dict:
-    shot = x["probe"].get("longest_shot")
+    probe = x["probe"]
+    shot = probe.get("longest_shot")
     if not shot:
         return result(NOT_MEASURED, detail="no shots measured")
+    expected = f"<= {c['warn_s']:.0f} s without a cut"
+    stretch = probe.get("longest_unchanged")
+    if stretch and stretch["length"] < shot["length"]:
+        value = f"{stretch['length']:.1f} s ({stretch['start']:.1f}-{stretch['end']:.1f} s) counting cuts in one half of the frame"
+        status = WARN if stretch["length"] > c["warn_s"] else PASS
+        return result(status, value, expected, "MEASURED probe.json#longest_unchanged (split screen: #region_cuts)")
     value = f"shot {shot['n']}: {shot['length']:.1f} s ({shot['start']:.1f}-{shot['end']:.1f} s)"
     status = WARN if shot["length"] > c["warn_s"] else PASS
-    return result(status, value, f"<= {c['warn_s']:.0f} s without a cut", "MEASURED probe.json#longest_shot")
+    return result(status, value, expected, "MEASURED probe.json#longest_shot")
 
 
 def payoff(c: dict, x: dict) -> dict:
     notes = x["notes"]
     if not notes or notes.get("payoff_delivered") is None:
-        return unseen()
+        return unseen(notes, "payoff_delivered")
     why = notes.get("payoff_why") or ""
     return result(PASS if notes["payoff_delivered"] else FAIL, why or str(notes["payoff_delivered"]).lower(),
                   "the promise is shown", "INFERRED from shots.jpg")
@@ -330,7 +355,7 @@ def asks(c: dict, x: dict) -> dict:
 def ending(c: dict, x: dict) -> dict:
     notes = x["notes"]
     if not notes or notes.get("ending_lands") is None:
-        return unseen()
+        return unseen(notes, "ending_lands")
     what = notes.get("ending_what") or ""
     return result(PASS if notes["ending_lands"] else WARN, what or str(notes["ending_lands"]).lower(),
                   "ends on a result, a turn or a loop", "SEEN shots.jpg end tile")
@@ -351,7 +376,7 @@ def safe_zone(c: dict, x: dict) -> dict:
     if drawn.get("skipped"):
         return result(NOT_APPLICABLE, detail=drawn["skipped"])
     if not notes or notes.get("safe_zone_ok") is None:
-        return unseen()
+        return unseen(notes, "safe_zone_ok")
     issue = notes.get("safe_zone_issue") or ""
     names = ", ".join(drawn.get("platforms") or [])
     return result(PASS if notes["safe_zone_ok"] else FAIL, issue or ("inside" if notes["safe_zone_ok"] else "outside"),
@@ -377,7 +402,7 @@ def captions(c: dict, x: dict) -> dict:
     if notes and notes.get("speaking") is False and not has_words:
         return result(NOT_APPLICABLE, detail="nobody speaks")
     if not notes or notes.get("captions") is None:
-        return unseen()
+        return unseen(notes, "captions")
     if not has_words and not notes.get("speaking"):
         return result(NOT_APPLICABLE, detail="nobody speaks")
     return result(PASS if notes["captions"] else FAIL, "captioned" if notes["captions"] else "no captions",
@@ -464,7 +489,7 @@ def evaluate(probe: dict, speech: Optional[dict], notes: Optional[dict], sheets:
                  "source": item["source"]}
         if outcome["status"] in (FAIL, WARN):
             entry["why"] = item["why"]
-            entry["fix"] = item["fix"]
+            entry["fix"] = item["fix"] + (f" Measured: {outcome['hint']}." if outcome.get("hint") else "")
         results.append(entry)
     return {"schema": "tsr/checks@1", "checks": results, "summary": summarize(results), "notes_problems": problems,
             "looked": clean is not None}

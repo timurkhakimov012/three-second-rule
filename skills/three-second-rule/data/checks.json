@@ -26,7 +26,7 @@
       "title": "Something moves in the first 0.5 s",
       "why": "A still card reads as a picture, not a video. Movement on frame 0 stops the eye before any word lands.",
       "fix": "Open mid-action: a push-in, a hand entering, a counter running, text building word by word. A still frame needs at least a zoom.",
-      "min_change": 0.008, "frozen_fail_s": 0.5, "source": "ootto"
+      "min_change": 0.008, "frozen_fail_s": 0.5, "best_start_ratio": 2.0, "source": "ootto"
     },
     {
       "id": "H3", "key": "first_word", "section": "hook", "evidence": "MEASURED",

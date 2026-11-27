@@ -13,7 +13,7 @@ from pathlib import Path
 from statistics import median
 from typing import Any, Iterable, Optional, Sequence
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 SKILL_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = SKILL_DIR / "data"
 DEFAULT_KEEP_DAYS = 30

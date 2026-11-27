@@ -30,14 +30,22 @@ what the answer shows, so they can be rewritten for your team's language too. Ev
 ```json
 "tiktok": {
   "name": "TikTok",
-  "safe_zone": {"top": 0.07, "bottom": 0.22, "left": 0.04, "right": 0.13},
-  "max_seconds": 600
+  "safe_zone": {"top": 0.06, "bottom": 0.13, "left": 0.03, "right": 0.03},
+  "buttons": {"width": 0.11, "from_top": 0.46},
+  "ads_zone": {"top": 0.125, "bottom": 0.344, "left": 0.111, "right": 0.111},
+  "max_seconds": 3600,
+  "sources": {"safe_zone": "…", "ads_zone": "…", "max_seconds": "…"},
+  "checked": "2026-11-27"
 }
 ```
 
-- `safe_zone`: the share of a 9:16 frame covered by the app's interface on each side. Approximate — apps change; when
-  a new layout ships, update the numbers here.
+- `safe_zone`: the share of a 9:16 frame covered on an ordinary post, each side (red on the sheet).
+- `buttons`: the like / comment / share column on the right: its width and where it starts from the top (red).
+- `ads_zone`: the platform's published ad template, which also covers long captions and ad add-ons (amber).
 - `max_seconds`: the upload limit, used by T5.
+- `sources` and `checked`: where each number comes from and when it was last checked. Apps change their interface;
+  when a new layout ships, update the number and its source together. YouTube publishes no measurement of an
+  ordinary Shorts post, so its `safe_zone` is this skill's estimate and says so.
 - `loudness_target_lufs` and `loudness_tolerance_lu` at the top: T3's target.
 
 Add a platform by adding an entry; `--platform <key>` then accepts it.

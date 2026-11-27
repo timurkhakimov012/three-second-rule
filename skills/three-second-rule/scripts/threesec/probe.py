@@ -18,8 +18,17 @@ MOTION_SECONDS = 3.0
 MOTION_WIDTH = 64
 FLAT_STD = 0.035
 DETECT_WIDTH = 160
+REGIONS = {
+    "top": "crop=iw:ih/2:0:0",
+    "bottom": "crop=iw:ih/2:0:ih/2",
+    "left": "crop=iw/2:ih:0:0",
+    "right": "crop=iw/2:ih:iw/2:0",
+}
+SCAN_SECONDS = 180.0
+WINDOW_STEPS = 2
 
 PTS_TIME = re.compile(r"pts_time:\s*([0-9.]+)")
+SCENE_SCORE = re.compile(r"lavfi\.scene_score=([0-9.]+)")
 BLACK = re.compile(r"black_start:\s*([0-9.]+)\s+black_end:\s*([0-9.]+)")
 FREEZE_START = re.compile(r"freeze_start:\s*([0-9.]+)")
 FREEZE_END = re.compile(r"freeze_end:\s*([0-9.]+)")
@@ -125,26 +134,47 @@ def merge_close(times: list[float], gap: float = CUT_MERGE_SEC) -> list[float]:
     return merged
 
 
+def scene_scores(log: str, name: str) -> list[tuple[float, float]]:
+    marker = f"[metadata@{name} "
+    scores, moment = [], None
+    for line in log.splitlines():
+        if marker not in line:
+            continue
+        found = PTS_TIME.search(line)
+        if found:
+            moment = float(found.group(1))
+            continue
+        score = SCENE_SCORE.search(line)
+        if score and moment is not None:
+            scores.append((moment, float(score.group(1))))
+            moment = None
+    return scores
+
+
+def cut_times(log: str, name: str, threshold: float) -> list[float]:
+    return merge_close([t for t, score in scene_scores(log, name) if score > threshold and t > 0.04])
+
+
 def video_detectors(video: Path, threshold: float = SCENE_THRESHOLD) -> dict:
-    chain = ",".join([
-        f"scale={DETECT_WIDTH}:-2",
-        "blackdetect=d=0.05:pix_th=0.10",
-        "freezedetect=n=0.003:d=0.4",
-        f"select='gt(scene,{threshold:.2f})'",
-        "showinfo",
-    ])
-    result = run([
-        "ffmpeg", "-hide_banner", "-nostats", "-i", str(video), "-map", "0:v:0", "-an", "-sn", "-dn",
-        "-vf", chain, "-f", "null", "-",
-    ])
-    log = result.stderr
-    cuts = [float(m) for line in log.splitlines() if "showinfo" in line and "pts_time" in line
-            for m in PTS_TIME.findall(line)]
+    labels = ["full", *REGIONS]
+    score = "select='gte(scene,0)',metadata@{name}=mode=print:key=lavfi.scene_score"
+    branches = ["[full]blackdetect=d=0.05:pix_th=0.10,freezedetect=n=0.003:d=0.4," + score.format(name="full") + "[out_full]"]
+    for name, crop in REGIONS.items():
+        branches.append(f"[{name}]{crop}," + score.format(name=name) + f"[out_{name}]")
+    graph = f"[0:v:0]scale={DETECT_WIDTH}:-2,split={len(labels)}" + "".join(f"[{n}]" for n in labels) + ";" + ";".join(branches)
+    args = ["ffmpeg", "-hide_banner", "-nostats", "-i", str(video), "-filter_complex", graph]
+    for name in labels:
+        args += ["-map", f"[out_{name}]", "-f", "null", "-"]
+    log = run(args).stderr
+    cuts = cut_times(log, "full", threshold)
+    in_regions = merge_close([t for name in REGIONS for t in cut_times(log, name, threshold)])
+    region_cuts = [t for t in in_regions if all(abs(t - c) >= CUT_MERGE_SEC for c in cuts)]
     blacks = [(float(a), float(b)) for a, b in BLACK.findall(log)]
     freeze_starts = [float(v) for v in FREEZE_START.findall(log)]
     freeze_ends = [float(v) for v in FREEZE_END.findall(log)]
     return {
-        "cuts": [round(t, 3) for t in merge_close([t for t in cuts if t > 0.04])],
+        "cuts": [round(t, 3) for t in cuts],
+        "region_cuts": [round(t, 3) for t in region_cuts],
         "black": [[round(a, 3), round(b, 3)] for a, b in blacks],
         "freezes": pair_intervals(freeze_starts, freeze_ends),
     }
@@ -213,23 +243,51 @@ def frame_difference(first: bytes, second: bytes) -> float:
     return sum(abs(a - b) for a, b in zip(first, second)) / (len(first) * 255)
 
 
-def motion(video: Path, width: int, height: int) -> dict:
-    frames = gray_frames(video, width, height)
+def most_active(changes: list[dict], cuts: list[float], step: float) -> Optional[dict]:
+    clean = [p for p in changes if all(not (p["t"] - step - 0.05 <= c <= p["t"] + 0.05) for c in cuts)]
+    by_time = {p["t"]: p["change"] for p in clean}
+    best = None
+    for point in clean:
+        start = round(point["t"] - step, 2)
+        if start < 0.5:
+            continue
+        window = [by_time.get(round(point["t"] + n * step, 2)) for n in range(WINDOW_STEPS)]
+        if None in window:
+            continue
+        value = sum(window) / WINDOW_STEPS
+        if best is None or value > best["change"]:
+            best = {"start": start, "end": round(start + WINDOW_STEPS * step, 2), "change": round(value, 4)}
+    return best
+
+
+def motion(video: Path, width: int, height: int, duration: float = MOTION_SECONDS,
+           cuts: Optional[list[float]] = None) -> dict:
+    frames = gray_frames(video, width, height, seconds=min(max(duration, MOTION_SECONDS), SCAN_SECONDS))
     if not frames:
-        return {"curve": [], "first_half_second": None, "frame0": None}
+        return {"curve": [], "first_half_second": None, "frame0": None, "most_active": None}
     step = 1 / MOTION_FPS
-    stats = [frame_stats(f) for f in frames]
-    curve = []
+    changes = []
     for number in range(1, len(frames)):
-        curve.append({"t": round(number * step, 2), "change": round(frame_difference(frames[number - 1], frames[number]), 4)})
+        changes.append({"t": round(number * step, 2), "change": round(frame_difference(frames[number - 1], frames[number]), 4)})
+    curve = [p for p in changes if p["t"] <= MOTION_SECONDS + 1e-6]
     early = [point["change"] for point in curve if point["t"] <= 0.5 + 1e-6]
-    mean, std = stats[0]
+    mean, std = frame_stats(frames[0])
     return {
         "curve": curve,
         "first_half_second": round(max(early), 4) if early else None,
         "first_three_seconds": round(max(p["change"] for p in curve), 4) if curve else None,
         "frame0": {"brightness": round(mean, 3), "contrast": round(std, 3), "flat": std < FLAT_STD},
+        "most_active": most_active(changes, cuts or [], step),
     }
+
+
+def longest_stretch(changes: list[float], duration: float) -> Optional[dict]:
+    edges = [0.0] + sorted(c for c in changes if 0 < c < duration) + [duration]
+    pairs = [(a, b) for a, b in zip(edges, edges[1:]) if b - a > 0.001]
+    if not pairs:
+        return None
+    start, end = max(pairs, key=lambda pair: pair[1] - pair[0])
+    return {"start": round(start, 3), "end": round(end, 3), "length": round(end - start, 3)}
 
 
 def shots(cuts: list[float], duration: float) -> list[dict]:
@@ -256,6 +314,7 @@ def measure(video: Path, threshold: float = SCENE_THRESHOLD) -> dict:
     shot_list = shots(cuts, duration)
     audio = audio_detectors(video, duration) if info["has_audio"] else None
     lengths = [s["length"] for s in shot_list]
+    region_cuts = detected["region_cuts"]
     return {
         "schema": "tsr/probe@1",
         "video": {"path": str(video), "name": video.name, "hash": file_hash(video)[:16]},
@@ -265,14 +324,16 @@ def measure(video: Path, threshold: float = SCENE_THRESHOLD) -> dict:
         "first_cut": cuts[0] if cuts else None,
         "cuts_first_3s": len([c for c in cuts if c <= 3.0]),
         "cuts_per_10s": round(len(cuts) / duration * 10, 2),
+        "region_cuts": region_cuts,
         "shots": shot_list,
         "longest_shot": max(shot_list, key=lambda s: s["length"]) if shot_list else None,
+        "longest_unchanged": longest_stretch(cuts + region_cuts, duration) if region_cuts else None,
         "average_shot": round(sum(lengths) / len(lengths), 3) if lengths else None,
         "black": detected["black"],
         "black_at_start": start_interval(detected["black"], duration),
         "freezes": detected["freezes"],
         "frozen_at_start": start_interval(detected["freezes"], duration),
-        "motion": motion(video, info["width"], info["height"]),
+        "motion": motion(video, info["width"], info["height"], duration, cuts),
         "audio": audio,
         "settings": {"scene_threshold": threshold, "silence_db": SILENCE_DB, "silence_min_s": SILENCE_MIN_SEC},
     }

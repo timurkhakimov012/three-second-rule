@@ -39,7 +39,7 @@ python3 ~/.claude/skills/three-second-rule/scripts/tsr.py doctor
 ```
 
 ```
-three-second-rule 0.1.0  python 3.12.4  Darwin arm64
+three-second-rule 0.2.0  python 3.12.4  Darwin arm64
   ok       ffmpeg   every mode that reads a video
   ok       yt-dlp   reading and downloading public posts by link
   missing  whisper  word timings when a video has no subtitles

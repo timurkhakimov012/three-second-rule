@@ -1,25 +1,49 @@
 {
-  "about": "Areas of a 1080x1920 frame that the app's own interface covers, as fractions of the frame. Approximate: taken from commonly published safe-zone templates, and every app changes its interface. Treat a hit as a warning to check in the app, never as a certainty.",
+  "about": "Areas of a 1080x1920 frame covered by each app's interface, as fractions of the frame. safe_zone and buttons: covered on an ordinary post (red on the sheet). ads_zone: the platform's published ad template, which also covers long captions and ad add-ons (amber). Every app changes its interface and phones differ: treat a hit as a warning to check in the app, never as a certainty. Each number names its source; update it with a new source when a layout ships.",
   "loudness_target_lufs": -14,
   "loudness_tolerance_lu": 4,
   "platforms": {
     "tiktok": {
       "name": "TikTok",
-      "safe_zone": {"top": 0.07, "bottom": 0.22, "left": 0.04, "right": 0.13},
+      "safe_zone": {"top": 0.06, "bottom": 0.13, "left": 0.03, "right": 0.03},
+      "buttons": {"width": 0.11, "from_top": 0.46},
+      "ads_zone": {"top": 0.125, "bottom": 0.344, "left": 0.111, "right": 0.111},
       "covered_by": {"top": "the Following / For You tabs", "bottom": "the caption, the sound and the progress bar", "right": "the profile, like, comment, save and share buttons"},
-      "max_seconds": 600
+      "max_seconds": 3600,
+      "sources": {
+        "safe_zone": "ahzab/safezone: measured on an ordinary post with a two-line caption, one iPhone, 2026-09-30",
+        "ads_zone": "TikTok In-Feed ad safe-zone template, via CokeRoach/shorts-safezone and viewgum/short-form-video-specs",
+        "max_seconds": "upload from the phone app (60 min); 10 min when recorded in the app; viewgum/short-form-video-specs"
+      },
+      "checked": "2026-11-27"
     },
     "reels": {
       "name": "Instagram Reels",
-      "safe_zone": {"top": 0.12, "bottom": 0.22, "left": 0.04, "right": 0.12},
+      "safe_zone": {"top": 0.10, "bottom": 0.11, "left": 0.05, "right": 0.05},
+      "buttons": {"width": 0.10, "from_top": 0.66},
+      "ads_zone": {"top": 0.14, "bottom": 0.35, "left": 0.06, "right": 0.06},
       "covered_by": {"top": "the Reels title and the camera button", "bottom": "the account name, the caption and the audio", "right": "the like, comment, share and more buttons"},
-      "max_seconds": 180
+      "max_seconds": 1200,
+      "sources": {
+        "safe_zone": "ahzab/safezone: measured on an ordinary post with a two-line caption, one iPhone, 2026-09-30; the sides are also cropped on tall phones",
+        "ads_zone": "Meta Ads Guide, Instagram Reels: 14% top, 35% bottom, 6% sides",
+        "max_seconds": "recorded and edited in the app (20 min); viewgum/short-form-video-specs"
+      },
+      "checked": "2026-11-27"
     },
     "shorts": {
       "name": "YouTube Shorts",
-      "safe_zone": {"top": 0.08, "bottom": 0.20, "left": 0.04, "right": 0.13},
+      "safe_zone": {"top": 0.08, "bottom": 0.20, "left": 0.04, "right": 0.04},
+      "buttons": {"width": 0.13, "from_top": 0.45},
+      "ads_zone": {"top": 0.15, "bottom": 0.35, "left": 0.044, "right": 0.178},
       "covered_by": {"top": "the search and more buttons", "bottom": "the title, the channel and the subscribe button", "right": "the like, dislike, comment, share and remix buttons"},
-      "max_seconds": 180
+      "max_seconds": 180,
+      "sources": {
+        "safe_zone": "tsr estimate: no measurement of an ordinary Shorts post is published; the ads zone is the stricter bound",
+        "ads_zone": "Google Ads Help, vertical video safe zone: clear area x 48-888, y 288-1248 of 1080x1920",
+        "max_seconds": "YouTube Help: Shorts up to 3 minutes"
+      },
+      "checked": "2026-11-27"
     }
   }
 }

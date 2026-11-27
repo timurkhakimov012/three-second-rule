@@ -26,9 +26,9 @@ Open the three sheets, each once:
 
 | Sheet | What it is | Look for |
 |---|---|---|
-| `first-3s.jpg` | 12 tiles, tile n = the frame at (n−1)×0.25 s: tile 1 = 0.00 s, tile 5 = 1.00 s, tile 7 = 1.50 s, tile 12 = 2.75 s | frame 0, when the hook text is readable, when the subject is clear, any zoom or pop, whether the 3 s make sense muted |
+| `first-3s.jpg` | 12 tiles, tile n = the frame at (n−1)×0.25 s: tile 1 = 0.00 s, tile 5 = 1.00 s, tile 7 = 1.50 s, tile 12 = 2.75 s; below them, frame 0 again as `grid` (profile-grid size, cropped to 3:4) and `blur` | frame 0, when the hook text is readable, when the subject is clear, any zoom or pop, whether the 3 s make sense muted; whether frame 0 still reads small and blurred |
 | `shots.jpg` | tile 1 = the first frame, then a frame 0.12 s after each cut, the last tile = the end | what the video delivers, whether the promise is paid off, how it ends, captions |
-| `safe-zones.jpg` | 4 frames with the app's interface shaded red and the safe area framed green | text or a face touching red |
+| `safe-zones.jpg` | 4 frames: red = covered on an ordinary post (edges and the button column), amber = covered in ads and under a long caption, green = the frame to stay inside | text or a face touching red; key words on amber |
 
 Then copy `notes.template.json` to `notes.json` in the run folder and fill it. Rules for each field:
 
@@ -37,6 +37,7 @@ Then copy `notes.template.json` to `notes.json` in the run folder and fill it. R
 | `looked` | `true` only after opening all the sheets listed in the output | `true` from the numbers alone |
 | `frame0.kind` | one of `face`, `person`, `text`, `product`, `action`, `scene`, `graphic`, `blank` | — |
 | `frame0.what` | one plain sentence about tile 1 | an opinion |
+| `frame0_small_ok` | `false` if the subject or the text of frame 0 is lost on the `grid` or `blur` tile | — |
 | `hook_text` | the words on screen in tiles 1-12, verbatim, that state the promise (a title, a big caption). Not the running subtitles of the speech, unless the subtitles are the only text | a paraphrase |
 | `hook_text_tile` | the first tile where it is fully readable | the tile where it starts animating in |
 | `topic_clear_tile` | the first tile by which a stranger would know what the video is about (from picture, text, or the measured `first_3s_text`) | `null` just because it is subtle: decide |
@@ -44,13 +45,14 @@ Then copy `notes.template.json` to `notes.json` in the run folder and fill it. R
 | `muted_ok` | `true` if picture + text alone state the promise | `true` because the voice is good |
 | `muted_why` | one line: what carries it, or what is missing | — |
 | `layers_agree` | `true` if picture, voice (`first_3s_text`) and text point at one promise | — |
-| `safe_zone_ok` | `false` if any text or face touches red on any tile; name the tile in `safe_zone_issue` | — |
+| `safe_zone_ok` | `false` if any text or face touches red on any tile; name the tile in `safe_zone_issue`. Amber only: `true`, and say it in `safe_zone_issue` | — |
 | `speaking` | `true` if anyone talks | — |
 | `captions` | `true` if the speech is captioned on screen; `null` if nobody speaks | — |
 | `payoff_delivered` | `true`/`false` if `shots.jpg` shows the promised result; `null` if you cannot tell from the stills | a guess |
 | `ending_lands` | `false` if the end tile is a trailing shot, a "bye", a fade to nothing | — |
 
-Write `null` for anything you cannot tell. A `null` stays "not measured", which is honest; a guess is not.
+Write `null` for anything you cannot tell. A `null` stays "not measured" (the output says the field was left null),
+which is honest; a guess is not.
 
 ## 3. Decide
 
@@ -64,8 +66,8 @@ It validates `notes.json` (fix what it names), decides every check and writes `c
 
 | Id | Check | From | Pass |
 |---|---|---|---|
-| H1 | Frame 0 shows something | black detection + frame 0 | no black over 0.1 s, frame 0 not blank |
-| H2 | Something moves in the first 0.5 s | frame difference, freeze, cuts | change ≥ 0.008 or a cut by 0.5 s |
+| H1 | Frame 0 shows something | black detection + frame 0 + your notes | no black over 0.1 s, frame 0 not blank; warn if lost at grid size |
+| H2 | Something moves in the first 0.5 s | frame difference, freeze, cuts | change ≥ 0.008 or a cut by 0.5 s; on a fail or warn, the fix names the most active half-second of the video when it moves at least 2× more |
 | H3 | The first word comes fast | speech timings | ≤ 0.5 s (warn ≤ 1.0 s) |
 | H4 | The hook is on screen, early and short | your notes | 3-7 words by 1.6 s (warn ≤ 2.5 s, ≤ 12 words); no text: fail, or warn if the picture alone carries it |
 | H5 | By 3 s the viewer knows what this is | your notes | a tile ≤ 12 |
@@ -74,7 +76,7 @@ It validates `notes.json` (fix what it names), decides every check and writes `c
 | H8 | Picture, voice and text agree | your notes + transcript | agree, and the text does not repeat 80% of a spoken phrase word for word |
 | H9 | No dead opener | transcript + hook text | no greeting, no early "subscribe" (fail); no filler start, no vague tease (warn) |
 | B1 | No dead air | silence detection | no total silence ≥ 0.7 s (fail ≥ 1.2 s), ends excluded |
-| B2 | No shot drags on | cuts | no shot over 5 s (warn only: zooms are invisible to the cut detector) |
+| B2 | No shot drags on | cuts, and cuts inside one half of the frame (split screens) | no stretch over 5 s without either (warn only: zooms are invisible to the cut detector) |
 | B3 | The promise is paid off | your notes | `payoff_delivered` |
 | B4 | At most one kind of ask | transcript | one of follow / comment / save / share / link / buy |
 | B5 | The ending lands | your notes | `ending_lands` (warn only) |
@@ -95,6 +97,7 @@ creator's hit that breaks H3), say so: the rules are averages, not laws.
 
 Fix first
 1. [H1] Frame 0 is black for 0.40 s → start on tile 3's shot (the open laptop); cut the fade.
+   (When H2 fails, its fix carries a measured start: "the most active half-second is 2.75-3.25 s". Use it.)
 2. [H9] Opens with "hey guys, today I want to" → open on the claim: "One setting doubles battery life."
 3. [B1] 1.5 s of silence at 4.0-5.5 s → cut it or lay the music under it.
 …

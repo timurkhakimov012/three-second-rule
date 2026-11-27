@@ -1,7 +1,7 @@
 {
   "name": "three-second-rule",
   "description": "Check the first 3 seconds of a short video before you post: a measured checklist (frame 0, motion, first word, hook text, cuts, dead air, safe zones, loudness) with fixes, teardowns of viral posts against their creator's usual, a hook lab and a niche format map. Free, local, no API keys.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": { "name": "Timur Khakimov", "url": "https://github.com/timurkhakimov012" },
   "homepage": "https://github.com/timurkhakimov012/three-second-rule",
   "repository": "https://github.com/timurkhakimov012/three-second-rule",

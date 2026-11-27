@@ -14,7 +14,7 @@ TikTok · Instagram Reels · YouTube Shorts · free · local · no API keys · M
 13 of 18 passed · 2 warnings · 3 failed
 
 Fix first
-1. [H1] Frame 0 is black for 0.40 s → open on the shot at 1.0 s (the open laptop).
+1. [H2] Opens on a still title card → the most active half-second is 6.25–6.75 s (measured): open there.
 2. [H9] Opens with "hey guys, today I want to" → open on the claim: "One setting doubles battery life."
 3. [B1] 1.5 s of silence at 4.0–5.5 s → cut it or lay the music under it.
 4. [H3] First word at 0.82 s → trim 0.4 s of silence before it.
@@ -131,9 +131,9 @@ video (same name) is enough. Whisper runs locally, with the tiny model, and only
 ```
 your video ──► tsr preflight ──► probe.json      cuts, black, freeze, motion, silence, loudness
                                  speech.json     words and times (subtitles or local Whisper)
-                                 first-3s.jpg    12 frames, one every 0.25 s
+                                 first-3s.jpg    12 frames, one every 0.25 s, + frame 0 small and blurred
                                  shots.jpg       a frame after each cut, and the end
-                                 safe-zones.jpg  the app's interface shaded red
+                                 safe-zones.jpg  the app's interface: red always covered, amber in ads
            ──► the agent looks at 3 images ──► notes.json  (what is on screen, when)
            ──► tsr check ──► checks.json ──► the answer: N of M, fixes in order, better openings
 ```

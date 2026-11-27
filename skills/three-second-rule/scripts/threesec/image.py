@@ -27,6 +27,11 @@ GLYPHS = {
     "c": ["00000", "00000", "01110", "10000", "10000", "10001", "01110"],
     "u": ["00000", "00000", "10001", "10001", "10001", "10011", "01101"],
     "t": ["01000", "01000", "11100", "01000", "01000", "01001", "00110"],
+    "g": ["00000", "01111", "10001", "10001", "01111", "00001", "01110"],
+    "r": ["00000", "00000", "10110", "11001", "10000", "10000", "10000"],
+    "i": ["00100", "00000", "01100", "00100", "00100", "00100", "01110"],
+    "b": ["10000", "10000", "10110", "11001", "10001", "10001", "11110"],
+    "l": ["01100", "00100", "00100", "00100", "00100", "00100", "01110"],
     " ": ["00000"] * 7,
 }
 GLYPH_W, GLYPH_H = 5, 7
@@ -120,16 +125,17 @@ def tile_size(width: int, height: int, tile_width: int) -> tuple[int, int]:
     return tile_width, even(tile_width * height / width)
 
 
-def frame_at(video: Path, seconds: float, width: int, height: int) -> Image:
+def frame_at(video: Path, seconds: float, width: int, height: int, before: str = "", after: str = "") -> Image:
+    chain = ",".join(part for part in (before, f"scale={width}:{height}:flags=area", after) if part)
     raw = run_bytes([
         "ffmpeg", "-hide_banner", "-nostats", "-loglevel", "error", "-ss", f"{max(0.0, seconds):.3f}",
-        "-i", str(video), "-map", "0:v:0", "-frames:v", "1", "-vf", f"scale={width}:{height}:flags=area",
+        "-i", str(video), "-map", "0:v:0", "-frames:v", "1", "-vf", chain,
         "-f", "rawvideo", "-pix_fmt", "rgb24", "-",
     ])
     if not raw:
         raw = run_bytes([
             "ffmpeg", "-hide_banner", "-nostats", "-loglevel", "error", "-sseof", "-0.2", "-i", str(video),
-            "-map", "0:v:0", "-frames:v", "1", "-vf", f"scale={width}:{height}:flags=area",
+            "-map", "0:v:0", "-frames:v", "1", "-vf", chain,
             "-f", "rawvideo", "-pix_fmt", "rgb24", "-",
         ])
     return Image.from_rgb(width, height, raw)

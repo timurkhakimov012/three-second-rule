@@ -24,9 +24,9 @@ only. Without it, all three are checked, which is stricter.
 
 Then three contact sheets the agent looks at:
 
-- **first-3s.jpg** — 12 frames, one every 0.25 s, numbered: tile 1 is 0.00 s, tile 5 is 1.00 s, tile 12 is 2.75 s.
+- **first-3s.jpg** — 12 frames, one every 0.25 s, numbered: tile 1 is 0.00 s, tile 5 is 1.00 s, tile 12 is 2.75 s. Below them, frame 0 again at profile-grid size (cropped to 3:4) and blurred: does it still read when small?
 - **shots.jpg** — the first frame, a frame 0.12 s after each cut, and the last frame.
-- **safe-zones.jpg** — four frames with the platforms' interface areas shaded red and the safe area framed green.
+- **safe-zones.jpg** — four frames: red is covered on an ordinary post (the edges and the button column), amber is covered in ads and under a long caption, the safe area is framed green. Every number has its source in `data/platforms.json`.
 
 The agent writes what it saw into `notes.json` (what is on frame 0, when the hook text is readable, whether the video
 works muted, whether the promise is paid off …). Checks that need eyes stay "not measured" until it has.
